@@ -65,7 +65,7 @@ function GetRange(id) {
         return range = [710, 720, 730, 740, 750, 760, 770, 780];
     }
 
-    
+
     return range;
 };
 /* Преобразование диапазонов */
@@ -91,8 +91,8 @@ function RangeConversionMainPoint(range, interval) {
     for (let i = 1; i < range.length; i++) {
         let number = range[i - 1]; //Первая опорная
         const a = range[i] - range[i - 1]; //Разница между опорными точками
-        const b = a / (interval+1); // Шаг между опорными точками
-        for (let j = 0; j < (interval+1); j++) {
+        const b = a / (interval + 1); // Шаг между опорными точками
+        for (let j = 0; j < (interval + 1); j++) {
             newRange.push(number);
             number += b;  // увеличиваем на один шаг
         }
@@ -100,7 +100,7 @@ function RangeConversionMainPoint(range, interval) {
     newRange.push(range[range.length - 1]);
 
 
-    
+
     return newRange;
 };
 
@@ -138,10 +138,29 @@ async function LegendFormation(id) {
     }
 };
 /* Получение настроек из меню пользователя */
+
+function formatDate(date) {
+
+    var dd = date.getDate();
+    if (dd < 10) dd = '0' + dd;
+
+    var mm = date.getMonth() + 1;
+    if (mm < 10) mm = '0' + mm;
+
+    var yy = date.getFullYear();
+    if (yy < 10) yy = '0' + yy;
+
+    return yy + '-' + mm + '-' + dd;
+}
+
 function GetAttributes() {
-    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '');
-    const day_one = My_Datepicker_value.split(':')[0];
-    const day_two = My_Datepicker_value.split(':')[1];
+    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '').split(".");
+    /*     const new_date = new Date(My_Datepicker_value[2], My_Datepicker_value[1], My_Datepicker_value[0]); */
+    /*     const day_one = My_Datepicker_value.split(':')[0];
+        const day_two = My_Datepicker_value.split(':')[1]; */
+    let day_one = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1] - 1, 1));
+    let day_two = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1], 0));
+
     const interval = document.getElementById('timeinterval').value;
     const layerID = document.getElementById('airChangeLayer').value ? document.getElementById('airChangeLayer').value : 0;
     let indicators = document.getElementsByClassName('radio');
@@ -152,7 +171,6 @@ function GetAttributes() {
             indicator_id.push(indicators[i].value);
             indicator_name.push(indicators[i].nextSibling.innerHTML);
         }
-
     let stations = document.getElementsByName('radio2');
     let station_id;
     for (let i = 0; i < stations.length; i++)
@@ -165,7 +183,6 @@ function GetAttributes() {
 
     if (checkedComparison) {
         Station_List_Id = [[], [], []];
-
         for (let i = 0; i < Station_List.length; i++) {
             if (Station_List[i].checked == true) {
                 if (Station_List[i].value == 1)

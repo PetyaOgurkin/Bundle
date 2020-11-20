@@ -13,6 +13,10 @@
   justify-items: center;
 }
 
+.airMap {
+  -webkit-user-select: none;
+}
+
 .airMap p {
   margin: 0px;
   padding: 0px;
@@ -208,55 +212,60 @@
   margin: 0 1rem;
 }
 
-.transparent
-{
-  background: rgba(255,255,255,0.3);
+.transparent {
+  background: rgba(255, 255, 255, 0.3);
 }
 
-.airCardItem
-{
+.airCardItem {
   display: block;
 }
 
-.airCardItem label:hover{
+.airCardItem label:hover {
   color: #055a81;
 }
 
-title{
+title {
   background-color: red;
 }
 
-#chart{
+#chart {
   display: block;
   align-items: center;
   justify-content: center;
 }
 
-#chart2{
+#chart2 {
   display: inline;
   align-items: center;
-/*   justify-content: center; */
+  /*   justify-content: center; */
 }
 
-
-#airAccordion
-{
+#airAccordion {
   height: 40px;
 }
 
-.downloadButton{
+.downloadButton {
   max-width: 35px;
   border-radius: 50%;
   float: right;
 }
 
-.accordionChart
-{
+.accordionChart {
   width: 100%;
 }
 
-#buttonChartChange
-{
+#buttonChartChange {
   float: right;
   display: none;
+}
+
+/* 
+.datepickerCenter {
+  margin-left: auto;
+  margin-right: auto
+}; */
+
+.card-body {
+  padding: 0;
+  margin: 0;
 }

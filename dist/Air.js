@@ -95,12 +95,13 @@ function ParseXMLSites(data) {
     let Dont = [3835, 3839, 3840, 3836, 3889, 3845, 3482, 3822, 3890, 3838, 3848, 3872, 3898]; // Неиспользуемые посты
     for (let i = 0; i < Sites_XML.length; i++) {
         if (Sites_XML[i].getAttribute('code').indexOf('ICAO') == false || Sites_XML[i].getAttribute('code').indexOf('uni') == false || Sites_XML[i].getAttribute('code').indexOf('ugms') == false || Sites_XML[i].getAttribute('code').indexOf('nke') == false || Sites_XML[i].getAttribute('code').indexOf('CA01') == false || Sites_XML[i].getAttribute('code').indexOf('s_') == false) {
-            Sites.push({
-                name: Sites_XML[i].getElementsByTagName("name")[0].firstChild.data,
-                id: Sites_XML[i].getAttribute("id"),
-                x: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("x"),
-                y: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("y")
-            });
+            if (Sites_XML[i].getElementsByTagName("location")[0] != undefined)
+                Sites.push({
+                    name: Sites_XML[i].getElementsByTagName("name")[0].firstChild.data,
+                    id: Sites_XML[i].getAttribute("id"),
+                    x: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("x"),
+                    y: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("y")
+                });
         }
     }
     return Sites.filter(site => Dont.indexOf(+site.id) === -1);
@@ -203,7 +204,7 @@ function GetRange(id) {
         return range = [710, 720, 730, 740, 750, 760, 770, 780];
     }
 
-    
+
     return range;
 }/* Преобразование диапазонов */
 function RangeConversion(range) {
@@ -226,8 +227,8 @@ function RangeConversionMainPoint(range, interval) {
     for (let i = 1; i < range.length; i++) {
         let number = range[i - 1]; //Первая опорная
         const a = range[i] - range[i - 1]; //Разница между опорными точками
-        const b = a / (interval+1); // Шаг между опорными точками
-        for (let j = 0; j < (interval+1); j++) {
+        const b = a / (interval + 1); // Шаг между опорными точками
+        for (let j = 0; j < (interval + 1); j++) {
             newRange.push(number);
             number += b;  // увеличиваем на один шаг
         }
@@ -235,7 +236,7 @@ function RangeConversionMainPoint(range, interval) {
     newRange.push(range[range.length - 1]);
 
 
-    
+
     return newRange;
 }
 /* Формирование легенды */
@@ -269,10 +270,29 @@ async function LegendFormation(id) {
         }
     }
 }/* Получение настроек из меню пользователя */
+
+function formatDate(date) {
+
+    var dd = date.getDate();
+    if (dd < 10) dd = '0' + dd;
+
+    var mm = date.getMonth() + 1;
+    if (mm < 10) mm = '0' + mm;
+
+    var yy = date.getFullYear();
+    if (yy < 10) yy = '0' + yy;
+
+    return yy + '-' + mm + '-' + dd;
+}
+
 function GetAttributes() {
-    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '');
-    const day_one = My_Datepicker_value.split(':')[0];
-    const day_two = My_Datepicker_value.split(':')[1];
+    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '').split(".");
+    /*     const new_date = new Date(My_Datepicker_value[2], My_Datepicker_value[1], My_Datepicker_value[0]); */
+    /*     const day_one = My_Datepicker_value.split(':')[0];
+        const day_two = My_Datepicker_value.split(':')[1]; */
+    let day_one = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1] - 1, 1));
+    let day_two = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1], 0));
+
     const interval = document.getElementById('timeinterval').value;
     const layerID = document.getElementById('airChangeLayer').value ? document.getElementById('airChangeLayer').value : 0;
     let indicators = document.getElementsByClassName('radio');
@@ -283,7 +303,6 @@ function GetAttributes() {
             indicator_id.push(indicators[i].value);
             indicator_name.push(indicators[i].nextSibling.innerHTML);
         }
-
     let stations = document.getElementsByName('radio2');
     let station_id;
     for (let i = 0; i < stations.length; i++)
@@ -296,7 +315,6 @@ function GetAttributes() {
 
     if (checkedComparison) {
         Station_List_Id = [[], [], []];
-
         for (let i = 0; i < Station_List.length; i++) {
             if (Station_List[i].checked == true) {
                 if (Station_List[i].value == 1)
@@ -454,19 +472,17 @@ async function ChangeDirectionArrow(data) {
     document.getElementById("Direction_Arrow").style = "transform: rotate(" + data + "deg);";
 }
 
-async function Download(Time,attribution) {
+async function Download(Time, attribution) {
     const layerID = (attribution.layerID != 0) ? attribution.layerID : attribution.indicator_id[0];
     const key = '654hblgm9gl8367h';
     const url_data = 'http://gis.krasn.ru/sc/api/1.0/projects/' + attribution.station_id + '/aggvalues?key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=' + layerID + '&time_interval=' + attribution.interval + '&limit=300000';
     const url_sets = 'http://gis.krasn.ru/sc/api/1.0/projects/' + attribution.station_id + '/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=' + layerID + '';
     const url_wind_dir = 'http://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?sites=3833&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
     const url_wind_speed = 'http://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?sites=3833&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102&time_interval=' + attribution.interval + '&limit=30000';
-
     const RawData = fetch(url_data);
     const RawDataSites = fetch(url_sets);
     const RawWindSpeed = fetch(url_wind_speed);
     const RawWindDirection = fetch(url_wind_dir);
-
     const DataSites = await RawDataSites.then(res => res.text()).then(res => (ParseText(res))).then(res => ParseXMLSites(res));
     const Data = await RawData.then(res => res.text()).then(res => ParseText(res));
     let WindSpeed = await RawWindSpeed.then(res => res.text()).then(res => ParseText(res));
@@ -483,7 +499,7 @@ async function Download(Time,attribution) {
         WindDirection: await WindDirection
     }
 }
-async function DownloadIndividual(Time,attribution, SitesList) {
+async function DownloadIndividual(Time, attribution, SitesList) {
     const key = '654hblgm9gl8367h';
     const url_wind_dir = 'http://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?sites=3833&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
     const url_wind_speed = 'http://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?sites=3833&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102&time_interval=' + attribution.interval + '&limit=30000';
@@ -570,7 +586,7 @@ async function DownloadSitesList() {
 
     return SitesFullList;
 }
-async function DownloadWind(Time,attribution) {
+async function DownloadWind(Time, attribution) {
     /* Ссылки */
     const key = '654hblgm9gl8367h';
     const url_wind_dir = 'http://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?s&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
@@ -950,8 +966,7 @@ async function LayerUpdate(data, attribution) {
 
     const isolines = document.getElementById('AirIsolines').checked;
     if (isolines) {
-        let vectorLayerPoligons = await Isolines(dots, RangeConversionMainPoint(range, 5), attribution);
-        console.log( RangeConversionMainPoint(range, 10));
+        let vectorLayerPoligons = await Isolines(dots, RangeConversionMainPoint(range, 0), attribution);
         map.addLayer(vectorLayerPoligons);
     }
 }
@@ -1023,20 +1038,14 @@ async function Isolines(dots, range, attribution) {
     const indicator_id = attribution.layerID ? attribution.layerID : attribution.indicator_id[0];
     const rangeForColor = RangeConversion(range);
     const barrier = document.getElementById('AirBarriers').checked;
-    const colorGradient = GenerateColorMainPoint(GetColorScheme(0, indicator_id), 5);
-
-    document.getElementById('airLegendBody').innerHTML = ``;
-    for (let i = 0; i < colorGradient.length; i++) {
-        document.getElementById('airLegendBody').innerHTML += `<div class="airLegendItem"><div style="background:${colorGradient[i]};"></div><span>${rangeForColor[i]}</span></div>`;
-    }
-
+    const colorGradient = GenerateColorMainPoint(GetColorScheme(0, indicator_id), 0);
     let poligons;
     if (barrier) {
         const mask = dline.ascToArray(await fetch('krs_cut.asc').then(res => res.text()));
         poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [20, 20], units: ['meters', 'degrees'], mask, boundaries: [[+50, +0.2], [+100, +0.1]], exponent: 3 }), range);
     }
     else {
-        poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [50, 50], units: ['meters', 'degrees'], exponent: 4 }), range);
+        poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [200, 200], units: ['meters', 'degrees'], exponent: 4 }), range);
     }
     let opacity = document.getElementById("opacityLayersChange").value;
 
@@ -1098,7 +1107,7 @@ async function UpdateInterface() {
     const Time = GetTime(attribution.day_one, attribution.day_two, attribution.interval);
     let SitesList = await a;
     DownloadedData = (attribution.Station_List_Id == 0) ? await Download(Time, attribution) : await DownloadIndividual(Time, attribution, SitesList);
-    DownloadedWind = await DownloadWind(Time,attribution);
+    DownloadedWind = await DownloadWind(Time, attribution);
     const DataPerHourWindSpeed = FindData(DownloadedWind.WindSpeed, Time[0]);
     const DataPerHourWindDirection = FindData(DownloadedWind.WindDirection, Time[0]);
     const DataPerHourWind = FindData(DownloadedData.WindSpeed, Time[0]);
@@ -1109,7 +1118,7 @@ async function UpdateInterface() {
     LayerUpdateWind(AddName(DataPerHourWindSpeed, DownloadedWind.SitesSet), AddName(DataPerHourWindDirection, DownloadedWind.SitesSet));
     PushTimeInSlide(Time);
     RefreshChart(DownloadedData.DataForGraph, MainChart);
-/*     RefreshAdditionalChart([], AdditionalChart); */
+    /*     RefreshAdditionalChart([], AdditionalChart); */
     ChangeWindSpeed(DataPerHourWind);
     ChangeDirectionArrow(DataPerHourDirection);
     LegendFormation(attribution.layerID ? attribution.layerID : attribution.indicator_id);

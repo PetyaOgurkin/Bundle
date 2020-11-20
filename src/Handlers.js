@@ -100,12 +100,13 @@ function ParseXMLSites(data) {
     let Dont = [3835, 3839, 3840, 3836, 3889, 3845, 3482, 3822, 3890, 3838, 3848, 3872, 3898]; // Неиспользуемые посты
     for (let i = 0; i < Sites_XML.length; i++) {
         if (Sites_XML[i].getAttribute('code').indexOf('ICAO') == false || Sites_XML[i].getAttribute('code').indexOf('uni') == false || Sites_XML[i].getAttribute('code').indexOf('ugms') == false || Sites_XML[i].getAttribute('code').indexOf('nke') == false || Sites_XML[i].getAttribute('code').indexOf('CA01') == false || Sites_XML[i].getAttribute('code').indexOf('s_') == false) {
-            Sites.push({
-                name: Sites_XML[i].getElementsByTagName("name")[0].firstChild.data,
-                id: Sites_XML[i].getAttribute("id"),
-                x: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("x"),
-                y: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("y")
-            })
+            if (Sites_XML[i].getElementsByTagName("location")[0] != undefined)
+                Sites.push({
+                    name: Sites_XML[i].getElementsByTagName("name")[0].firstChild.data,
+                    id: Sites_XML[i].getAttribute("id"),
+                    x: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("x"),
+                    y: Sites_XML[i].getElementsByTagName("location")[0].getAttribute("y")
+                })
         }
     }
     return Sites.filter(site => Dont.indexOf(+site.id) === -1);

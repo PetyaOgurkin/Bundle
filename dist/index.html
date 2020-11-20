@@ -55,17 +55,13 @@
                     <div id="collapseCalendar" class="collapse" aria-labelledby="calendar" data-parent="#airAccordion">
                         <div class="card">
                             <div class="card-header">Календарь</div>
-                            <div class="card-body">
-                                <input type="text" class="form-control" data-range="true" id="day"
-                                    data-multiple-dates-separator=" : "
-                                    style="width: 100%; background-color:rgb(240, 240, 240);" class="datepicker-here" />
+                            <div class="card-body datepickerCenter">
+                                <div data-range="false" id="day" class="datepicker-here datepickerCustom"
+                                    data-min-view="months" data-view="months" data-date-format="dd.mm.yyyy">
+                                </div>
                                 <select id="timeinterval" class="form-control">
-                                    <option disabled selected value="1hour">Интервал времени</option>
-                                    <option value="10min">10 минут</option>
-                                    <option value="20min">20 минут</option>
-                                    <option value="30min">30 минут</option>
+                                    <option disabled selected value="1day">Интервал времени</option>
                                     <option value="1hour">Один час</option>
-                                    <option value="2hour">Два часа</option>
                                     <option value="1day">Сутки</option>
                                 </select>
 
@@ -85,11 +81,13 @@
                                                 value="103" id="103" /><label for="103">Температура</label></div>
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="PM2.5"
                                                 value="348" id="348" checked /><label for="348">PM2.5</label></div>
+                                        <!--  <div class="airCardItem"><input type="checkbox" class="radio" name="PM10"
+                                                value="61" id="61" /><label for="61">PM10</label></div> -->
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="Влажность"
                                                 value="100" id="100" /><label for="100">Влажность</label></div>
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="Давление"
                                                 value="99" id="99" /><label for="99">Давление</label></div>
-                                        <div class="airCardItem"><input type="checkbox" class="radio"
+                                        <!--                                         <div class="airCardItem"><input type="checkbox" class="radio"
                                                 name="Азота диоксид" value="58" id="58" /><label for="58">Азота
                                                 диоксид</label></div>
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="Азота оксид"
@@ -106,7 +104,7 @@
                                                 ветра</label></div>
                                         <div class="airCardItem"><input type="checkbox" class="radio"
                                                 name="Скорость ветра" value="102" id="102" /><label for="102">Скорость
-                                                ветра</label></div>
+                                                ветра</label></div> -->
                                     </div>
                                 </div>
                                 <div class="card">
@@ -140,8 +138,11 @@
                                         Настройки слоя
                                     </div>
                                     <div class="card-body">
-                                        <div class="airCardItem"><label>Переключить слой</label><select
-                                                id="airChangeLayer"><option value="348">PM2.5</option></select></div>
+                                        <div class="airCardItem"><label>Переключить слой</label>
+                                            <p><select id="airChangeLayer">
+                                                    <option value="348">PM2.5</option>
+                                                </select></p>
+                                        </div>
                                         <div class="airCardItem"><input id="AirIsolines" type="checkbox" /><label
                                                 for="AirIsolines">Полигоны</label></div>
                                         <div class="airCardItem"><input id="AirBarriers" type="checkbox" /><label
@@ -167,7 +168,7 @@
                         </div>
                     </div>
                 </div>
-               <!--  <div><button class="btn btn-info downloadButton"><img src="pictures/downloadButton.png" height="20px"
+                <!--  <div><button class="btn btn-info downloadButton"><img src="pictures/downloadButton.png" height="20px"
                             width="20px"></button></div> -->
             </div>
         </div>
@@ -177,7 +178,6 @@
     </div>
 
     <div class="GridFooter">
-
         <div style="padding: 5px;">
             <button class="btn btn-info btn-sm" id="CloseOpenChartButton" data-toggle="collapse"
                 href="#collapseChartOne" role="button" aria-expanded="false" aria-controls="collapseChartOne">Открыть
@@ -205,37 +205,14 @@
             <div class="card card-body">
                 <div id="chart2" style="height: 350px; text-align: center;">
                     <p>Выберите несколько показателей и нажмите на станцию мониторинга</p>
-                    <p>Зажмите клавишу 'Ctrl', чтобы выбрать несколько постов мониторинга для отображения на дополнительном графике</p>
+                    <p>Зажмите клавишу 'Ctrl', чтобы выбрать несколько постов мониторинга для отображения на
+                        дополнительном графике</p>
                     <p></p>
                     <svg></svg>
                 </div>
             </div>
         </div>
-
-
-        <!--         <div class="accordion" id="accordionChart" style="width: 100%;">
-            <div class="card">
-                <div id="collapseChartOne" class="collapse" data-parent="#accordionChart">
-                    <div class="card-body">
-                        <div class="ChartFooter">
-                            <div id="chart" style="height: 350px;"><svg></svg></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div id="collapseChartTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionChart">
-                    <div class="card-body">
-                        <div class="ChartFooter">
-                            <div id="chart2" style="height: 350px;"><svg></svg></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
     </div>
-
 
     <div class="modal fade " id="selection_station" tabindex="-1" role="dialog"
         aria-labelledby="selection_station_modal" aria-hidden="true">

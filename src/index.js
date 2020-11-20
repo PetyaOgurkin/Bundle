@@ -2,7 +2,7 @@ import { Download, DownloadSitesList, DownloadIndividual, DownloadWind } from '.
 import { FillDate, GetTime, GetAttributes, PushTimeInSlide, ChangeWindSpeed, LegendFormation, ChangeDirectionArrow } from './Attributes'
 import * as Handlers from './Handlers'
 import { LayerUpdate, LayerUpdateWind } from './Map'
-import { MainChart, RefreshChart, AdditionalChart, CloseOpenChart,RefreshAdditionalChart } from './Chart'
+import { MainChart, RefreshChart, AdditionalChart, CloseOpenChart, RefreshAdditionalChart } from './Chart'
 
 FillDate();
 DownloadSitesList();
@@ -16,7 +16,7 @@ async function UpdateInterface() {
     const Time = GetTime(attribution.day_one, attribution.day_two, attribution.interval);
     let SitesList = await a;
     DownloadedData = (attribution.Station_List_Id == 0) ? await Download(Time, attribution) : await DownloadIndividual(Time, attribution, SitesList);
-    DownloadedWind = await DownloadWind(Time,attribution);
+    DownloadedWind = await DownloadWind(Time, attribution);
     const DataPerHourWindSpeed = Handlers.FindData(DownloadedWind.WindSpeed, Time[0]);
     const DataPerHourWindDirection = Handlers.FindData(DownloadedWind.WindDirection, Time[0]);
     const DataPerHourWind = Handlers.FindData(DownloadedData.WindSpeed, Time[0]);
@@ -27,7 +27,7 @@ async function UpdateInterface() {
     LayerUpdateWind(Handlers.AddName(DataPerHourWindSpeed, DownloadedWind.SitesSet), Handlers.AddName(DataPerHourWindDirection, DownloadedWind.SitesSet));
     PushTimeInSlide(Time);
     RefreshChart(DownloadedData.DataForGraph, MainChart);
-/*     RefreshAdditionalChart([], AdditionalChart); */
+    /*     RefreshAdditionalChart([], AdditionalChart); */
     ChangeWindSpeed(DataPerHourWind);
     ChangeDirectionArrow(DataPerHourDirection);
     LegendFormation(attribution.layerID ? attribution.layerID : attribution.indicator_id);

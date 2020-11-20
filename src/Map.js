@@ -205,8 +205,7 @@ async function LayerUpdate(data, attribution) {
 
     const isolines = document.getElementById('AirIsolines').checked;
     if (isolines) {
-        let vectorLayerPoligons = await Isolines(dots, RangeConversionMainPoint(range, 5), attribution);
-        console.log( RangeConversionMainPoint(range, 10));
+        let vectorLayerPoligons = await Isolines(dots, RangeConversionMainPoint(range, 0), attribution);
         map.addLayer(vectorLayerPoligons);
     }
 };
@@ -280,20 +279,14 @@ async function Isolines(dots, range, attribution) {
     const indicator_id = attribution.layerID ? attribution.layerID : attribution.indicator_id[0];
     const rangeForColor = RangeConversion(range);
     const barrier = document.getElementById('AirBarriers').checked;
-    const colorGradient = GenerateColorMainPoint(GetColorScheme(0, indicator_id), 5);
-
-    document.getElementById('airLegendBody').innerHTML = ``;
-    for (let i = 0; i < colorGradient.length; i++) {
-        document.getElementById('airLegendBody').innerHTML += `<div class="airLegendItem"><div style="background:${colorGradient[i]};"></div><span>${rangeForColor[i]}</span></div>`;
-    }
-
+    const colorGradient = GenerateColorMainPoint(GetColorScheme(0, indicator_id), 0);
     let poligons;
     if (barrier) {
         const mask = dline.ascToArray(await fetch('krs_cut.asc').then(res => res.text()));
         poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [20, 20], units: ['meters', 'degrees'], mask, boundaries: [[+50, +0.2], [+100, +0.1]], exponent: 3 }), range);
     }
     else {
-        poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [50, 50], units: ['meters', 'degrees'], exponent: 4 }), range);
+        poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [200, 200], units: ['meters', 'degrees'], exponent: 4 }), range);
     }
     let opacity = document.getElementById("opacityLayersChange").value;
 
