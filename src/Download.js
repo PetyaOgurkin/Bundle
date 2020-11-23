@@ -133,6 +133,7 @@ async function DownloadWind(Time, attribution) {
     const url_stationset = 'https://gis.krasn.ru/sc/api/1.0/projects/1/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102';
     const url_stationset_metar = 'https://gis.krasn.ru/sc/api/1.0/projects/10/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102';
     const url_stationset_ugms = 'https://gis.krasn.ru/sc/api/1.0/projects/5/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102';
+
     /* Посты */
     const RawDataStations = fetch(url_stationset);
     const RawDataStationsMETAR = fetch(url_stationset_metar);
@@ -182,6 +183,27 @@ async function DownloadWind(Time, attribution) {
     };
 };
 
+async function DownloadWindFromVantage(Time, attribution) {
+    const key = '654hblgm9gl8367h';
+    const url_wind_dir = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?s&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
+    const url_wind_speed = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102&time_interval=' + attribution.interval + '&limit=30000';
+    const url_wind_rapid = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=369&time_interval=' + attribution.interval + '&limit=30000';
+
+    const RawDataWindSpeed = fetch(url_wind_speed);
+    const RawDataWindDirection = fetch(url_wind_dir);
+    const RawDataWindRapid = fetch(url_wind_rapid);
+
+    const WindSpeed = await RawDataWindSpeed.then(res => res.text()).then(res => Handlers.ParseText(res)).then(res => Handlers.ParseXMLOne(res, Time, 1));
+    const WindDirection = await RawDataWindDirection.then(res => res.text()).then(res => Handlers.ParseText(res)).then(res => Handlers.ParseXMLOne(res, Time, 1));
+    const WindRapid = await RawDataWindRapid.then(res => res.text()).then(res => Handlers.ParseText(res)).then(res => Handlers.ParseXMLOne(res, Time, 1));
+
+    return {
+        WindSpeed,
+        WindDirection,
+        WindRapid
+    }
+};
+
 async function DownLoadMultiIndicator(turn) {
     const DataSet = [];
     for (let e in turn) {
@@ -217,4 +239,4 @@ async function DownLoadMultiIndicator(turn) {
     return DataSet;
 };
 
-export { Download, DownloadSitesList, DownloadIndividual, DownloadWind, DownLoadMultiIndicator }
+export { Download, DownloadSitesList, DownloadIndividual, DownloadWind, DownLoadMultiIndicator, DownloadWindFromVantage }

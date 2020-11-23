@@ -286,13 +286,27 @@ function formatDate(date) {
 }
 
 function GetAttributes() {
-    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '').split(".");
-    /*     const new_date = new Date(My_Datepicker_value[2], My_Datepicker_value[1], My_Datepicker_value[0]); */
-    /*     const day_one = My_Datepicker_value.split(':')[0];
-        const day_two = My_Datepicker_value.split(':')[1]; */
-    let day_one = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1] - 1, 1));
-    let day_two = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1], 0));
-
+    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '');
+    let day_one = 0;
+    let day_two = 0;
+    if (My_Datepicker_value) {
+        if (My_Datepicker_value.split(",").length > 1) {
+            const My_Datepicker_value_split = My_Datepicker_value.split(",");
+            const My_Datepicker_value_split_day_one = My_Datepicker_value_split[0].split(".");
+            const My_Datepicker_value_split_day_two = My_Datepicker_value_split[1].split(".");
+            day_one = formatDate(new Date(My_Datepicker_value_split_day_one[2], My_Datepicker_value_split_day_one[1] - 1, My_Datepicker_value_split_day_one[0]));
+            day_two = formatDate(new Date(My_Datepicker_value_split_day_two[2], My_Datepicker_value_split_day_two[1] - 1, My_Datepicker_value_split_day_two[0]));
+        }
+        else {
+            const My_Datepicker_value_split = My_Datepicker_value.split(".");
+            day_one = formatDate(new Date(My_Datepicker_value_split[2], My_Datepicker_value_split[1] - 1, 1));
+            day_two = formatDate(new Date(My_Datepicker_value_split[2], My_Datepicker_value_split[1], 0));
+        }
+    }
+    else {
+        day_one = formatDate(new Date());
+        day_two = formatDate(new Date());
+    }
     const interval = document.getElementById('timeinterval').value;
     const layerID = document.getElementById('airChangeLayer').value ? document.getElementById('airChangeLayer').value : 0;
     let indicators = document.getElementsByClassName('radio');
@@ -466,7 +480,7 @@ function GetColorForPoligon(colorScheme, range, value) {
         }    }
 }
 async function ChangeWindSpeed(data) {
-    document.getElementById("windspeed").innerText = data.toFixed(1) + ' м/с';
+    document.getElementById("windspeed").innerText = Math.trunc(data) + ' м/с';
 }
 async function ChangeDirectionArrow(data) {
     document.getElementById("Direction_Arrow").style = "transform: rotate(" + data + "deg);";
@@ -598,6 +612,7 @@ async function DownloadWind(Time, attribution) {
     const url_stationset = 'https://gis.krasn.ru/sc/api/1.0/projects/1/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102';
     const url_stationset_metar = 'https://gis.krasn.ru/sc/api/1.0/projects/10/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102';
     const url_stationset_ugms = 'https://gis.krasn.ru/sc/api/1.0/projects/5/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102';
+
     /* Посты */
     const RawDataStations = fetch(url_stationset);
     const RawDataStationsMETAR = fetch(url_stationset_metar);
@@ -645,6 +660,26 @@ async function DownloadWind(Time, attribution) {
         WindSpeed,
         WindDirection
     };
+}
+async function DownloadWindFromVantage(Time, attribution) {
+    const key = '654hblgm9gl8367h';
+    const url_wind_dir = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?s&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
+    const url_wind_speed = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102&time_interval=' + attribution.interval + '&limit=30000';
+    const url_wind_rapid = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=369&time_interval=' + attribution.interval + '&limit=30000';
+
+    const RawDataWindSpeed = fetch(url_wind_speed);
+    const RawDataWindDirection = fetch(url_wind_dir);
+    const RawDataWindRapid = fetch(url_wind_rapid);
+
+    const WindSpeed = await RawDataWindSpeed.then(res => res.text()).then(res => ParseText(res)).then(res => ParseXMLOne(res));
+    const WindDirection = await RawDataWindDirection.then(res => res.text()).then(res => ParseText(res)).then(res => ParseXMLOne(res));
+    const WindRapid = await RawDataWindRapid.then(res => res.text()).then(res => ParseText(res)).then(res => ParseXMLOne(res));
+
+    return {
+        WindSpeed,
+        WindDirection,
+        WindRapid
+    }
 }
 async function DownLoadMultiIndicator(turn) {
     const DataSet = [];
@@ -1095,26 +1130,120 @@ document.addEventListener('keyup', e => {
     }
 });
 
+async function WindInformation(data) {
+    const windContainer = document.getElementById("windContainer");
+    windContainer.innerHTML = "";
+    const windSpeed = data.WindSpeed;
+    const windDirection = data.WindDirection;
+    const windRapid = data.WindRapid;
+    const length = windSpeed.length;
+    for (let i = 0; i < length; i++) {
+        const windBlock = document.createElement("div");
+        windBlock.classList.add("windBlock");
+
+        const ul = document.createElement("ul");
+        ul.classList.add("list-group");
+
+        const windTime = document.createElement("li");
+        windTime.classList.add("list-group-item");
+        windTime.innerText = windSpeed[i].time;
+
+        const windValue = document.createElement("li");
+        windValue.classList.add("list-group-item");
+        windValue.innerText = Math.trunc(windSpeed[i].values) + ' м/с';
+
+        const img = document.createElement("img");
+        img.classList.add("windDirection");
+        img.src = "dist/pictures/black-arrow.png";
+        img.style.transform = `rotate(${windDirection[i].values}deg)`;
+
+        const windDirectionText = document.createElement("li");
+        windDirectionText.classList.add("list-group-item");
+        windDirectionText.innerText = DirectionText(windDirection[i].values);
+        windDirectionText.appendChild(img);
+
+        ul.appendChild(windTime);
+        ul.appendChild(windValue);
+        ul.appendChild(windDirectionText);
+
+        const windRapidValue = document.createElement("li");
+        windRapidValue.classList.add("list-group-item");
+        windRapidValue.innerText = 'Порывы: -';
+
+        const lengthRapid = windRapid.length;
+        for (let j = 0; j < lengthRapid; j++) {
+            if (windSpeed[i].time == windRapid[j].time) {
+                windRapidValue.innerText = 'Порывы: ' + Math.trunc(windRapid[j].values) + ' м/с';
+            }
+        }
+        ul.appendChild(windRapidValue);
+        windBlock.appendChild(ul);
+        windContainer.appendChild(windBlock);
+    }
+}
+
+function DirectionText(value) {
+    if (value >= 0 && value < 22)
+        return "С"
+    if (value >= 22 && value < 45)
+        return "ССВ"
+    if (value >= 45 && value < 67)
+        return "СВ"
+    if (value >= 67 && value < 90)
+        return "ВВС"
+    if (value >= 90 && value < 112)
+        return "В"
+    if (value >= 112 && value < 135)
+        return "ВЮВ"
+    if (value >= 135 && value < 157)
+        return "ЮВ"
+    if (value >= 157 && value < 180)
+        return "ЮЮВ"
+    if (value >= 180 && value < 202)
+        return "Ю"
+    if (value >= 202 && value < 225)
+        return "ЮЮЗ"
+    if (value >= 225 && value < 247)
+        return "ЮЗ"
+    if (value >= 247 && value < 270)
+        return "ЗЮЗ"
+    if (value >= 270 && value < 292)
+        return "З"
+    if (value >= 292 && value < 315)
+        return "ЗСЗ"
+    if (value >= 315 && value < 337)
+        return "СЗ"
+    if (value >= 337 && value < 360)
+        return "ССЗ"
+    if (value == 360)
+        return "С"
+}
+
 FillDate();
 DownloadSitesList();
 let DownloadedData;
 let DownloadedWind;
+let DownloadWindFromVantageData;
 let a = DownloadSitesList();
 let attribution;
 UpdateInterface();
 async function UpdateInterface() {
+    const gif = document.getElementById("gif");
+    gif.style.visibility = "visible";
     attribution = GetAttributes();
     const Time = GetTime(attribution.day_one, attribution.day_two, attribution.interval);
     let SitesList = await a;
     DownloadedData = (attribution.Station_List_Id == 0) ? await Download(Time, attribution) : await DownloadIndividual(Time, attribution, SitesList);
     DownloadedWind = await DownloadWind(Time, attribution);
+    DownloadWindFromVantageData = await DownloadWindFromVantage(Time, attribution);
     const DataPerHourWindSpeed = FindData(DownloadedWind.WindSpeed, Time[0]);
     const DataPerHourWindDirection = FindData(DownloadedWind.WindDirection, Time[0]);
-    const DataPerHourWind = FindData(DownloadedData.WindSpeed, Time[0]);
+    const DataPerHourWind = FindData(DownloadWindFromVantageData.WindSpeed, Time[0]);
     const DataPerHourLayer = FindData(DownloadedData.DataForLayer, Time[0]);
-    const DataPerHourDirection = FindData(DownloadedData.WindDirection, Time[0]);
+    const DataPerHourDirection = FindData(DownloadWindFromVantageData.WindDirection, Time[0]);
+    WindInformation(DownloadWindFromVantageData);
     /* Обновление */
-    LayerUpdate(AddName(DataPerHourLayer, DownloadedData.DataSites), attribution);
+    LayerUpdate(AddName(DataPerHourLayer, DownloadedData.DataSites), attribution).then(gif.style.visibility = "hidden");
     LayerUpdateWind(AddName(DataPerHourWindSpeed, DownloadedWind.SitesSet), AddName(DataPerHourWindDirection, DownloadedWind.SitesSet));
     PushTimeInSlide(Time);
     RefreshChart(DownloadedData.DataForGraph, MainChart);
@@ -1123,6 +1252,11 @@ async function UpdateInterface() {
     ChangeDirectionArrow(DataPerHourDirection);
     LegendFormation(attribution.layerID ? attribution.layerID : attribution.indicator_id);
     document.getElementById('timedisplay').innerHTML = Time[0];
+
+    console.log(DownloadedWind);
+    console.log(DownloadWindFromVantageData);
+
+
 }
 $('.refresh').on('click', function () {
     UpdateInterface();
@@ -1131,9 +1265,9 @@ $('.refresh').on('click', function () {
 $('#range_footer').on('input', function () {
     let Time = this.list.children[this.value].innerHTML;
     document.getElementById('timedisplay').innerHTML = Time;
-    const DataPerHourWind = FindData(DownloadedData.WindSpeed, Time);
+    const DataPerHourWind = FindData(DownloadWindFromVantageData.WindSpeed, Time);
     const DataPerHourLayer = FindData(DownloadedData.DataForLayer, Time);
-    const DataPerHourDirection = FindData(DownloadedData.WindDirection, Time);
+    const DataPerHourDirection = FindData(DownloadWindFromVantageData.WindDirection, Time);
     const DataPerHourWindSpeed = FindData(DownloadedWind.WindSpeed, Time);
     const DataPerHourWindDirection = FindData(DownloadedWind.WindDirection, Time);
     LayerUpdate(AddName(DataPerHourLayer, DownloadedData.DataSites), attribution);
@@ -1201,9 +1335,9 @@ $('#chart').on('click', function () {
             }
         }
         document.getElementById('timedisplay').innerHTML = Time;
-        const DataPerHourWind = FindData(DownloadedData.WindSpeed, Time);
+        const DataPerHourWind = FindData(DownloadWindFromVantageData.WindSpeed, Time);
         const DataPerHourLayer = FindData(DownloadedData.DataForLayer, Time);
-        const DataPerHourDirection = FindData(DownloadedData.WindDirection, Time);
+        const DataPerHourDirection = FindData(DownloadWindFromVantageData.WindDirection, Time);
         LayerUpdate(AddName(DataPerHourLayer, DownloadedData.DataSites), attribution);
         ChangeWindSpeed(DataPerHourWind);
         ChangeDirectionArrow(DataPerHourDirection);
@@ -1283,6 +1417,28 @@ $('.radio').on('change', function () {
     }
 });
 
+$('#timeinterval').on('change', function () {
+
+    let datepicker = $('#day').datepicker().data('datepicker');
+    datepicker.clear();
+
+    if (this.value == '1day') {
+        datepicker.view = 'months';
+        datepicker.update({
+            view: "months",
+            minView: "months",
+            range: false
+        });
+
+    }    if (this.value == '1hour') {
+        datepicker.view = 'days';
+        datepicker.update({
+            view: "days",
+            minView: "days",
+            range: true
+
+        });
+    }});
 
 window.onresize = function () {
     try {

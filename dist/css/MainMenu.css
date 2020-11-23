@@ -269,3 +269,23 @@ title {
   padding: 0;
   margin: 0;
 }
+
+#range_footer {
+  padding: 10px;
+  margin: 5px;
+}
+
+.downloadInformation {
+  position: absolute;
+  width: 100%;
+  height: 100px;
+  z-index: 3;
+}
+
+.gif {
+  margin-top: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  visibility: hidden;
+}

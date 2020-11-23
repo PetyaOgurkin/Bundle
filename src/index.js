@@ -1,29 +1,35 @@
-import { Download, DownloadSitesList, DownloadIndividual, DownloadWind } from './Download'
+import { Download, DownloadSitesList, DownloadIndividual, DownloadWind, DownloadWindFromVantage } from './Download'
 import { FillDate, GetTime, GetAttributes, PushTimeInSlide, ChangeWindSpeed, LegendFormation, ChangeDirectionArrow } from './Attributes'
 import * as Handlers from './Handlers'
 import { LayerUpdate, LayerUpdateWind } from './Map'
 import { MainChart, RefreshChart, AdditionalChart, CloseOpenChart, RefreshAdditionalChart } from './Chart'
+import { WindInformation } from './Wind'
 
 FillDate();
 DownloadSitesList();
 let DownloadedData;
 let DownloadedWind;
+let DownloadWindFromVantageData;
 let a = DownloadSitesList();
 let attribution;
 UpdateInterface();
 async function UpdateInterface() {
+    const gif = document.getElementById("gif");
+    gif.style.visibility = "visible";
     attribution = GetAttributes();
     const Time = GetTime(attribution.day_one, attribution.day_two, attribution.interval);
     let SitesList = await a;
     DownloadedData = (attribution.Station_List_Id == 0) ? await Download(Time, attribution) : await DownloadIndividual(Time, attribution, SitesList);
     DownloadedWind = await DownloadWind(Time, attribution);
+    DownloadWindFromVantageData = await DownloadWindFromVantage(Time, attribution);
     const DataPerHourWindSpeed = Handlers.FindData(DownloadedWind.WindSpeed, Time[0]);
     const DataPerHourWindDirection = Handlers.FindData(DownloadedWind.WindDirection, Time[0]);
-    const DataPerHourWind = Handlers.FindData(DownloadedData.WindSpeed, Time[0]);
+    const DataPerHourWind = Handlers.FindData(DownloadWindFromVantageData.WindSpeed, Time[0]);
     const DataPerHourLayer = Handlers.FindData(DownloadedData.DataForLayer, Time[0]);
-    const DataPerHourDirection = Handlers.FindData(DownloadedData.WindDirection, Time[0]);
+    const DataPerHourDirection = Handlers.FindData(DownloadWindFromVantageData.WindDirection, Time[0]);
+    WindInformation(DownloadWindFromVantageData);
     /* Обновление */
-    LayerUpdate(Handlers.AddName(DataPerHourLayer, DownloadedData.DataSites), attribution);
+    LayerUpdate(Handlers.AddName(DataPerHourLayer, DownloadedData.DataSites), attribution).then(gif.style.visibility = "hidden");
     LayerUpdateWind(Handlers.AddName(DataPerHourWindSpeed, DownloadedWind.SitesSet), Handlers.AddName(DataPerHourWindDirection, DownloadedWind.SitesSet));
     PushTimeInSlide(Time);
     RefreshChart(DownloadedData.DataForGraph, MainChart);
@@ -32,6 +38,11 @@ async function UpdateInterface() {
     ChangeDirectionArrow(DataPerHourDirection);
     LegendFormation(attribution.layerID ? attribution.layerID : attribution.indicator_id);
     document.getElementById('timedisplay').innerHTML = Time[0];
+
+    console.log(DownloadedWind);
+    console.log(DownloadWindFromVantageData);
+
+
 };
 
 $('.refresh').on('click', function () {
@@ -41,9 +52,9 @@ $('.refresh').on('click', function () {
 $('#range_footer').on('input', function () {
     let Time = this.list.children[this.value].innerHTML;
     document.getElementById('timedisplay').innerHTML = Time;
-    const DataPerHourWind = Handlers.FindData(DownloadedData.WindSpeed, Time);
+    const DataPerHourWind = Handlers.FindData(DownloadWindFromVantageData.WindSpeed, Time);
     const DataPerHourLayer = Handlers.FindData(DownloadedData.DataForLayer, Time);
-    const DataPerHourDirection = Handlers.FindData(DownloadedData.WindDirection, Time);
+    const DataPerHourDirection = Handlers.FindData(DownloadWindFromVantageData.WindDirection, Time);
     const DataPerHourWindSpeed = Handlers.FindData(DownloadedWind.WindSpeed, Time);
     const DataPerHourWindDirection = Handlers.FindData(DownloadedWind.WindDirection, Time);
     LayerUpdate(Handlers.AddName(DataPerHourLayer, DownloadedData.DataSites), attribution);
@@ -111,9 +122,9 @@ $('#chart').on('click', function () {
             }
         }
         document.getElementById('timedisplay').innerHTML = Time;
-        const DataPerHourWind = Handlers.FindData(DownloadedData.WindSpeed, Time);
+        const DataPerHourWind = Handlers.FindData(DownloadWindFromVantageData.WindSpeed, Time);
         const DataPerHourLayer = Handlers.FindData(DownloadedData.DataForLayer, Time);
-        const DataPerHourDirection = Handlers.FindData(DownloadedData.WindDirection, Time);
+        const DataPerHourDirection = Handlers.FindData(DownloadWindFromVantageData.WindDirection, Time);
         LayerUpdate(Handlers.AddName(DataPerHourLayer, DownloadedData.DataSites), attribution);
         ChangeWindSpeed(DataPerHourWind);
         ChangeDirectionArrow(DataPerHourDirection);
@@ -191,8 +202,32 @@ $('.radio').on('change', function () {
             document.getElementById('airChangeLayer').innerHTML += `<option value="${listRadio[i].id}">${listRadio[i].name}</option>`;
         }
     }
-})
+});
 
+$('#timeinterval').on('change', function () {
+
+    let datepicker = $('#day').datepicker().data('datepicker');
+    datepicker.clear();
+
+    if (this.value == '1day') {
+        datepicker.view = 'months';
+        datepicker.update({
+            view: "months",
+            minView: "months",
+            range: false
+        });
+
+    };
+    if (this.value == '1hour') {
+        datepicker.view = 'days';
+        datepicker.update({
+            view: "days",
+            minView: "days",
+            range: true
+
+        })
+    };
+});
 
 window.onresize = function () {
     try {

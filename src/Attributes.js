@@ -154,13 +154,27 @@ function formatDate(date) {
 }
 
 function GetAttributes() {
-    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '').split(".");
-    /*     const new_date = new Date(My_Datepicker_value[2], My_Datepicker_value[1], My_Datepicker_value[0]); */
-    /*     const day_one = My_Datepicker_value.split(':')[0];
-        const day_two = My_Datepicker_value.split(':')[1]; */
-    let day_one = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1] - 1, 1));
-    let day_two = formatDate(new Date(My_Datepicker_value[2], My_Datepicker_value[1], 0));
-
+    const My_Datepicker_value = document.getElementById('day').value.replace(/\s+/g, '');
+    let day_one = 0;
+    let day_two = 0;
+    if (My_Datepicker_value) {
+        if (My_Datepicker_value.split(",").length > 1) {
+            const My_Datepicker_value_split = My_Datepicker_value.split(",");
+            const My_Datepicker_value_split_day_one = My_Datepicker_value_split[0].split(".");
+            const My_Datepicker_value_split_day_two = My_Datepicker_value_split[1].split(".");
+            day_one = formatDate(new Date(My_Datepicker_value_split_day_one[2], My_Datepicker_value_split_day_one[1] - 1, My_Datepicker_value_split_day_one[0]));
+            day_two = formatDate(new Date(My_Datepicker_value_split_day_two[2], My_Datepicker_value_split_day_two[1] - 1, My_Datepicker_value_split_day_two[0]));
+        }
+        else {
+            const My_Datepicker_value_split = My_Datepicker_value.split(".");
+            day_one = formatDate(new Date(My_Datepicker_value_split[2], My_Datepicker_value_split[1] - 1, 1));
+            day_two = formatDate(new Date(My_Datepicker_value_split[2], My_Datepicker_value_split[1], 0));
+        }
+    }
+    else {
+        day_one = formatDate(new Date());
+        day_two = formatDate(new Date());
+    }
     const interval = document.getElementById('timeinterval').value;
     const layerID = document.getElementById('airChangeLayer').value ? document.getElementById('airChangeLayer').value : 0;
     let indicators = document.getElementsByClassName('radio');
@@ -353,7 +367,7 @@ function GetColorForPoligon(colorScheme, range, value) {
 };
 
 async function ChangeWindSpeed(data) {
-    document.getElementById("windspeed").innerText = data.toFixed(1) + ' м/с';
+    document.getElementById("windspeed").innerText = Math.trunc(data) + ' м/с';
 };
 
 async function ChangeDirectionArrow(data) {

@@ -15,9 +15,11 @@
     <link href="dist/css/table.css" rel="stylesheet" type="text/css" />
     <link href="dist/css/MainMenu.css" rel="stylesheet" type="text/css" />
     <link href="dist/css/menuGis.css" rel="stylesheet" type="text/css" />
+    <link href="dist/css/wind.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
+    <div class="downloadInformation"><img src="dist/pictures/load.gif" id="gif" class="gif" height="100px" width="100px" ></div>
     <nav role="navigation" aria-labelledby="block-geoportal-menu" id="block-geoportal"
         class="block block-menu navigation menu--main">
         <ul class="menu">
@@ -29,7 +31,6 @@
             </li>
         </ul>
     </nav>
-
     <div class="airMap">
         <div class="HeadMenu">
             <div class="AirDaysDirection">
@@ -45,11 +46,13 @@
                             aria-controls="collapseCalendar">Календарь</button>
                         <button type="button" class="btn btn-info" id="settings" data-toggle="collapse"
                             data-target="#collapseIndicator" aria-expanded="false"
-                            aria-controls="collapseIndicator">Дополнительные
-                            настройки</button>
+                            aria-controls="collapseIndicator">Настройки</button>
                         <button button type="button" class="btn btn-info" id="layer" data-toggle="collapse"
                             data-target="#collapseLayer" aria-expanded="false"
                             aria-controls="collapseLayer">Легенда</button>
+                        <button button type="button" class="btn btn-info" id="wind" data-toggle="collapse"
+                            data-target="#collapseWind" aria-expanded="false"
+                            aria-controls="collapseWind">Ветер</button>
                     </div>
                     <div id="collapseCalendar" class="collapse" aria-labelledby="calendar" data-parent="#airAccordion">
                         <div class="card">
@@ -80,30 +83,10 @@
                                                 value="103" id="103" /><label for="103">Температура</label></div>
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="PM2.5"
                                                 value="348" id="348" checked /><label for="348">PM2.5</label></div>
-                                        <!--  <div class="airCardItem"><input type="checkbox" class="radio" name="PM10"
-                                                value="61" id="61" /><label for="61">PM10</label></div> -->
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="Влажность"
                                                 value="100" id="100" /><label for="100">Влажность</label></div>
                                         <div class="airCardItem"><input type="checkbox" class="radio" name="Давление"
                                                 value="99" id="99" /><label for="99">Давление</label></div>
-                                        <!--                                         <div class="airCardItem"><input type="checkbox" class="radio"
-                                                name="Азота диоксид" value="58" id="58" /><label for="58">Азота
-                                                диоксид</label></div>
-                                        <div class="airCardItem"><input type="checkbox" class="radio" name="Азота оксид"
-                                                value="59" id="59" /><label for="59">Азота
-                                                оксид</label></div>
-                                        <div class="airCardItem"><input type="checkbox" class="radio"
-                                                name="Углерода оксид" value="63" id="63" /><label for="63">Углерода
-                                                оксид</label></div>
-                                        <div class="airCardItem"><input type="checkbox" class="radio" name="Сероводород"
-                                                value="64" id="64" /><label for="64">Сероводород</label></div>
-                                        <div class="airCardItem"><input type="checkbox" class="radio"
-                                                name="Направление ветра" value="101" id="101" /><label
-                                                for="101">Направление
-                                                ветра</label></div>
-                                        <div class="airCardItem"><input type="checkbox" class="radio"
-                                                name="Скорость ветра" value="102" id="102" /><label for="102">Скорость
-                                                ветра</label></div> -->
                                     </div>
                                 </div>
                                 <div class="card">
@@ -166,40 +149,61 @@
                             </div>
                         </div>
                     </div>
+                    <div id="collapseWind" class="collapse" aria-labelledby="wind" data-parent="#airAccordion">
+                        <div class="card">
+                            <div class="card-header">
+                                Данные о ветре (м/с)
+                            </div>
+                            <div class="card-body">
+                                <div id="windContainer" class="windContainer">
+                                   <!--  <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div>
+                                    <div class="windBlock"></div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!--  <div><button class="btn btn-info downloadButton"><img src="pictures/downloadButton.png" height="20px"
-                            width="20px"></button></div> -->
             </div>
         </div>
-        <div class="MainBody">
-            <div id="map"></div>
-        </div>
     </div>
-
+    <div class="MainBody">
+        <div id="map"></div>
+    </div>
+    </div>
     <div class="GridFooter">
         <div style="padding: 5px;">
             <button class="btn btn-info btn-sm" id="CloseOpenChartButton" data-toggle="collapse"
                 href="#collapseChartOne" role="button" aria-expanded="false" aria-controls="collapseChartOne">Открыть
                 график</button>
-
             <button class="btn btn-info btn-sm" id="ChangeChartButton" type="button" data-toggle="collapse"
                 data-target=".multi-collapse" aria-expanded="false" aria-controls="collapseChartOne collapseChartTwo"
-                disabled>Переключить графики</button>
+                style="display: none;" disabled>Переключить графики</button>
         </div>
-
         <div class="card card-body" style="width: 100%;">
             <input class="custom-range" type="range" id="range_footer" list="tickmarks" step="1"
                 style="width: 100%; height:5px;" value="0">
             <datalist id="tickmarks">
             </datalist>
         </div>
-
         <div class="collapse multi-collapse" id="collapseChartOne" style="width: 100%;">
             <div class="card card-body">
                 <div id="chart" style="height: 350px;"><svg></svg></div>
             </div>
         </div>
-
         <div class="collapse multi-collapse" id="collapseChartTwo" style="width: 100%;">
             <div class="card card-body">
                 <div id="chart2" style="height: 350px; text-align: center;">
@@ -212,7 +216,6 @@
             </div>
         </div>
     </div>
-
     <div class="modal fade " id="selection_station" tabindex="-1" role="dialog"
         aria-labelledby="selection_station_modal" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -241,7 +244,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://unpkg.com/dline@1.0.0/dist/dline.min.js"></script>
     <script src="dist/ol.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
@@ -254,7 +256,6 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-
 </body>
 
 </html>
