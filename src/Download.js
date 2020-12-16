@@ -5,7 +5,7 @@ async function Download(Time, attribution) {
     const layerID = (attribution.layerID != 0) ? attribution.layerID : attribution.indicator_id[0];
     const key = '654hblgm9gl8367h';
     const url_data = 'https://gis.krasn.ru/sc/api/1.0/projects/' + attribution.station_id + '/aggvalues?key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=' + layerID + '&time_interval=' + attribution.interval + '&limit=300000';
-    const url_sets = 'https://gis.krasn.ru/sc/api/1.0/projects/' + attribution.station_id + '/sites?key=' + key + '&&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=' + layerID + '';
+    const url_sets = 'https://gis.krasn.ru/sc/api/1.0/projects/' + attribution.station_id + '/sites?key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=' + layerID + '';
     const url_wind_dir = 'https://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?sites=3833&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
     const url_wind_speed = 'https://gis.krasn.ru/sc/api/1.0/projects/1/aggvalues?sites=3833&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102&time_interval=' + attribution.interval + '&limit=30000';
     const RawData = fetch(url_data);
@@ -187,7 +187,7 @@ async function DownloadWindFromVantage(Time, attribution) {
     const key = '654hblgm9gl8367h';
     const url_wind_dir = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?s&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=101&time_interval=' + attribution.interval + '&limit=30000';
     const url_wind_speed = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=102&time_interval=' + attribution.interval + '&limit=30000';
-    const url_wind_rapid = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=369&time_interval=' + attribution.interval + '&limit=30000';
+    const url_wind_rapid = 'https://gis.krasn.ru/sc/api/1.0/projects/6/aggvalues?&key=' + key + '&time_begin=' + attribution.day_one + '&time_end=' + attribution.day_two + '&indicators=369&time_interval=' + attribution.interval + '';
 
     const RawDataWindSpeed = fetch(url_wind_speed);
     const RawDataWindDirection = fetch(url_wind_dir);
