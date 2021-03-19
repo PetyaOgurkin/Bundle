@@ -1,6 +1,8 @@
 import { GetColorScheme, GetRange, RangeConversion, RangeConversionMainPoint, GenerateColorMainPoint, GetColorForPoligon } from './Attributes'
 import { MainChart, AdditionalChart, RefreshAdditionalChart, CloseOpenChart } from './Chart'
 import { DownLoadMultiIndicator } from './Download'
+import * as krskMask from './krsk.json';
+
 CreateDiv();
 /* Карта */
 let ctrlDown = false;
@@ -201,7 +203,7 @@ async function LayerUpdate(data, attribution) {
         zIndex: 1
     });
 
-     map.addLayer(vectorLayer); 
+    map.addLayer(vectorLayer);
 
     const isolines = document.getElementById('AirIsolines').checked;
     if (isolines) {
@@ -286,7 +288,32 @@ async function Isolines(dots, range, attribution) {
         poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [20, 20], units: ['meters', 'degrees'], mask, boundaries: [[+50, +0.2], [+100, +0.1]], exponent: 3 }), range);
     }
     else {
-        poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [200, 200], units: ['meters', 'degrees'], exponent: 4 }), range);
+        poligons = dline.isobands(dline.IDW(dots, 250, { bbox: [50, 120], units: ['meters', 'degrees'], exponent: 4 }), range, krskMask);
+
+        console.log(poligons);
+
+        let up = 0;
+        let down = 0;
+
+        poligons.features.forEach(p => {
+
+            let editedValue = 0;
+            const [e1, e2] = p.properties.value.split(/>|<|-/);
+            if (e1 && e2) {
+                editedValue = +e1 + (+e2 - (+e1)) / 2
+            } else {
+                editedValue = +e1 || +e2;
+            }
+
+            up += p.properties.area * editedValue;
+            down += p.properties.area;
+        })
+
+        const totalPollutionLevel = up / down;
+
+        document.querySelector('#totalPollutionLevel').innerHTML = totalPollutionLevel.toFixed();
+
+
     }
     let opacity = document.getElementById("opacityLayersChange").value;
 
@@ -296,7 +323,7 @@ async function Isolines(dots, range, attribution) {
             dataProjection: 'EPSG:4326'
         })).readFeatures(poligons)
     })
-   
+
     let vectorLayerP = new ol.layer.Vector({
         source: vectorSourceP,
         opacity: opacity
@@ -337,4 +364,4 @@ document.addEventListener('keyup', e => {
     }
 })
 
-export { LayerUpdate, LayerUpdateWind } 
+export { LayerUpdate, LayerUpdateWind }
